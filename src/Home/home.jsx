@@ -3,19 +3,43 @@ import { useAuth } from '../context/AuthContext';
 import { API_ENDPOINT } from '../services/Constant';
 import { copyToClipboard } from '../services/helpers';
 import { HttpRequest } from '../services/HttpRequest';
-
+import axios from 'axios';
 import "./home.css";
 
 function Home() {
   const { logout, useUser } = useAuth();
   const [user, setUser] = useUser();
   const [table, setTable] = useState([{fileName: "", user: ""}]);
+  const [uploadFile, setUploadFile] = React.useState();
+  const [superHero, setSuperHero] = React.useState();
+  
+  const submitForm = (event) => {
+    event.preventDefault();
 
+    const dataArray = new FormData();
+    
+    dataArray.append("File", uploadFile);
+
+    axios
+      .post("http://localhost:8080/api/v1/collection/upload", dataArray, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      })
+      .then((response) => {
+        // successfully uploaded response
+      })
+      .catch((error) => {
+        // error response
+      });
+  };
+  
   useEffect(() => {
     const getTableRequest = async () => {
       const requestObj = {
 				path: '/collection/get',
 				method: 'GET',
+				
 			};
 
       const response = await HttpRequest(requestObj);
@@ -30,6 +54,11 @@ function Home() {
   const handleLogout = (e) => {
     logout();
   };
+  
+
+  
+
+  
 
 	return (
 		<div className='upload'>
@@ -37,14 +66,14 @@ function Home() {
 				<div class='collapse navbar-collapse' id='navbarNav'>
 					<ul class='navbar-nav'>
 						<li class='nav-item active'>
-							<button type='button' class='btn  btn-secondary' style={{marginLeft: '530px'}}>
+							<button type='button' class='btn  btn-secondary' style={{marginLeft: '535px'}}>
 								<a href='#' style={{textDecoration: 'none', color: 'white'}}>
 									Available API's
 								</a>
 							</button>
 						</li>
 						<li class='nav-item'>
-							<a class='nav-link' href='#' style={{marginLeft: '400px'}}>
+							<a class='nav-link' href='#' style={{marginLeft: '300px'}}>
 								{user.name}
 							</a>
 						</li>
@@ -63,6 +92,12 @@ function Home() {
 			</nav>
 			<br />
 			<div className='container'>
+			<div className="">
+			<label style={{marginLeft:"300px"}}>Select File</label>
+			<input type="file" name="file" onChange={(e) => setUploadFile(e.target.files)} />
+			
+			<button type="button" class="btn btn-primary" style={{marginBottom:"10px",marginLeft:"5px"}} onClick={submitForm}>Upload</button>
+			</div>
 				<table class='table table-bordered'>
 					<thead>
 						<tr>
